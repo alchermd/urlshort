@@ -1,13 +1,25 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"github.com/alchermd/urlshort"
+	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 )
 
 func main() {
+	yamlFileName := flag.String("yaml", "urls.yaml", "the YAML file that contains URL definitions")
+	flag.Parse()
+
+	yaml, err := ioutil.ReadFile(*yamlFileName)
+	if err != nil {
+		fmt.Println("Cound't open YAML file.")
+		os.Exit(1)
+	}
+
 	mux := defaultMux()
 
 	pathsToUrls := map[string]string{
@@ -17,13 +29,8 @@ func main() {
 	}
 
 	mapHandler := urlshort.MapHandler(pathsToUrls, mux)
-	yaml := `
-- path: /netflix
-  url: https://netflix.com/
-- path: /google
-  url: https://google.com/
-`
-	yamlHandler, err := urlshort.YAMLHandler([]byte(yaml), mapHandler)
+
+	yamlHandler, err := urlshort.YAMLHandler(yaml, mapHandler)
 	if err != nil {
 		panic(err)
 	}
