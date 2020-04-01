@@ -17,9 +17,19 @@ func main() {
 	}
 
 	mapHandler := urlshort.MapHandler(pathsToUrls, mux)
+	yaml := `
+- path: /netflix
+  url: https://netflix.com/
+- path: /google
+  url: https://google.com/
+`
+	yamlHandler, err := urlshort.YAMLHandler([]byte(yaml), mapHandler)
+	if err != nil {
+		panic(err)
+	}
 
 	log.Print("Starting server on :8080")
-	http.ListenAndServe(":8080", mapHandler)
+	http.ListenAndServe(":8080", yamlHandler)
 }
 
 func defaultMux() *http.ServeMux {
